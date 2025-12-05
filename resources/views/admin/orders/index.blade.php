@@ -8,30 +8,7 @@
     ← Dashboard
   </a>
 </div>
-
-{{-- Statistik Ringkas --}}
-<div class="grid grid-cols-5 gap-4 mb-6">
-  <div class="bg-gray-800 text-center text-white p-4 rounded-lg shadow-md">
-    <div class="text-3xl font-bold">{{ $stats['new'] ?? 0 }}</div>
-    <div class="text-sm opacity-80">New Orders</div>
-  </div>
-  <div class="bg-gray-800 text-center text-white p-4 rounded-lg shadow-md">
-    <div class="text-3xl font-bold">{{ $stats['processed'] ?? 0 }}</div>
-    <div class="text-sm opacity-80">Processed</div>
-  </div>
-  <div class="bg-gray-800 text-center text-white p-4 rounded-lg shadow-md">
-    <div class="text-3xl font-bold">{{ $stats['sent'] ?? 0 }}</div>
-    <div class="text-sm opacity-80">Sent</div>
-  </div>
-  <div class="bg-gray-800 text-center text-white p-4 rounded-lg shadow-md">
-    <div class="text-3xl font-bold">{{ $stats['finished'] ?? 0 }}</div>
-    <div class="text-sm opacity-80">Finished</div>
-  </div>
-  <div class="bg-gray-800 text-center text-white p-4 rounded-lg shadow-md">
-    <div class="text-3xl font-bold">{{ $stats['cancelled'] ?? 0 }}</div>
-    <div class="text-sm opacity-80">Cancelled</div>
-  </div>
-</div>
+{{-- Dashboard widgets removed from orders management; stats shown only in dashboard page --}}
 
 {{-- Tabel Pesanan --}}
 <h2 class="text-xl font-semibold mb-3 text-white">Daftar Pesanan</h2>
@@ -58,15 +35,17 @@
         <td>{{ $o->created_at->format('Y-m-d H:i') }}</td>
         <td>Rp {{ number_format($o->total, 0, ',', '.') }}</td>
         <td>
+          @php $isFinal = in_array($o->status, ['batal','selesai']); @endphp
           <form method="POST" action="{{ route('admin.orders.status', $o) }}" class="flex items-center gap-2">
             @csrf @method('PATCH')
             <select name="status" 
+                    {{ $isFinal ? 'disabled' : '' }}
                     class="bg-gray-900 border border-gray-600 text-white rounded px-2 py-1 focus:outline-none focus:ring-1 focus:ring-gray-400">
               @foreach(['baru','diproses','dikirim','selesai','batal'] as $s)
                 <option value="{{ $s }}" @selected($o->status === $s)>{{ ucfirst($s) }}</option>
               @endforeach
             </select>
-            <button class="bg-gray-700 hover:bg-gray-600 px-3 py-1 rounded text-sm">Ubah</button>
+            <button type="submit" {{ $isFinal ? 'disabled' : '' }} class="bg-gray-700 hover:bg-gray-600 px-3 py-1 rounded text-sm {{ $isFinal ? 'opacity-50 cursor-not-allowed' : '' }}">Ubah</button>
           </form>
         </td>
         <td>
